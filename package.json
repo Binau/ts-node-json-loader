@@ -1,0 +1,30 @@
+{
+  "name": "ts-node-json-loader",
+  "version": "1.0.3",
+  "author": "Binau",
+  "license": "SEE LICENSE IN CC-BY-4.0",
+  "repository": {
+    "url": "https://github.com/Binau/ts-node-json-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Binau/ts-node-json-loader/issues"
+  },
+  "dependencies": {
+    "ts-all-utils": "^1.0.10"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.18",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.2.4"
+  },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build-js": "tsc -d -p tsconfig-js.json",
+    "publish-patch": "npm run build-js && npm version patch && npm publish",
+    "test": "mocha --timeout 5000 --require ts-node/register ./test/*.ts"
+  }
+}
