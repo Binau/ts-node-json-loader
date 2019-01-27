@@ -10,7 +10,7 @@
     "url": "https://github.com/Binau/ts-node-json-loader/issues"
   },
   "dependencies": {
-    "ts-all-utils": "^1.0.10"
+    "ts-all-utils": "^1.0.15"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",

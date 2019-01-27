@@ -1,127 +1,126 @@
 import {assert} from 'chai';
-import {HttpServer} from '../src/server/http.server';
-import {HttpClient} from '../src/client/http.client';
-
-describe('Get', function () {
+import {JsonLoader} from '../src/json.loader';
+import {promises} from 'fs';
 
 
-    describe('Path', function () {
+describe('Tests - 01', async () => {
+    describe('Chargement simple', async () => {
 
-        it('Test path root /', async () => {
-            let testOk = false;
+        it('Fichier existant', async () => {
 
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.displayLog = false;
-            server.get(() => testOk = true).listen(7845);
+            const fileUrl = `${__dirname}/test1.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({jsonFileUrl: fileUrl});
 
-            // On attend la fin de l'appel
-            await HttpClient.get('http://localhost:7845');
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, 'str1');
+            assert.strictEqual(vals.val2, 'str2');
+            assert.strictEqual(vals.val3, 35);
 
-            // Test si on est passé dans le callback
-            assert.isOk(testOk);
-
-            // Fermeture du serveur
-            await server.close();
         });
 
-        it('Test simple path /chemin', async () => {
-            let testOk = false;
+        it('Fichier inexistant', async () => {
 
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.displayLog = false;
-            server.get(() => testOk = true, '/chemin').listen(7845);
+            const fileUrl = `${__dirname}/testX.json`;
+            const vals = await JsonLoader.loadJsonFromFile({jsonFileUrl: fileUrl});
 
-            // On attend la fin de l'appel
-            await HttpClient.get('http://localhost:7845/chemin');
+            assert.deepStrictEqual({}, vals);
 
-            // Test si on est passé dans le callback
-            assert.isOk(testOk);
-
-            // Fermeture du serveur
-            await server.close();
         });
 
-        it('Test path param /chemin:id', async () => {
-            let testOk = false;
+    });
 
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.displayLog = false;
-            server.get(p => testOk = p.params.id === '8', '/chemin:id').listen(7845);
+    describe('Template', async () => {
 
-            // On attend la fin de l'appel
-            await HttpClient.get('http://localhost:7845/chemin8');
+        it('Fichier existant', async () => {
 
-            // Test si on est passé dans le callback
-            assert.isOk(testOk);
+            const fileUrl = `${__dirname}/test1.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({
+                jsonFileUrl: fileUrl,
+                createJsonFromTemplate: {val3: 55, val4: 54}
+            });
 
-            // Fermeture du serveur
-            await server.close();
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, 'str1');
+            assert.strictEqual(vals.val2, 'str2');
+            assert.strictEqual(vals.val3, 35);
+            assert.strictEqual(vals.val4, undefined);
+
         });
 
-        it('Test path query /chemin?val=8', async () => {
-            let testOk = false;
+        it('Fichier inexistant', async () => {
 
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.displayLog = false;
-            server.get(p => testOk = p.query.val === '8', '/chemin').listen(7845);
+            const fileUrl = `${__dirname}/testX.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({
+                jsonFileUrl: fileUrl,
+                createJsonFromTemplate: {val3: 55, val4: 54}
+            });
 
-            // On attend la fin de l'appel
-            await HttpClient.get('http://localhost:7845/chemin?val=8');
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, undefined);
+            assert.strictEqual(vals.val2, undefined);
+            assert.strictEqual(vals.val3, 55);
+            assert.strictEqual(vals.val4, 54);
 
-            // Test si on est passé dans le callback
-            assert.isOk(testOk);
+            const fileStat = await promises.stat(fileUrl);
+            assert.isOk(fileStat.isFile());
 
-            // Fermeture du serveur
-            await server.close();
+            await promises.unlink(fileUrl);
+        });
+
+    });
+
+    describe('Defaults', async () => {
+        it('Fichier existant', async () => {
+
+            const fileUrl = `${__dirname}/test1.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({
+                jsonFileUrl: fileUrl,
+                defaultValues: {val3: 55, val4: 54}
+            });
+
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, 'str1');
+            assert.strictEqual(vals.val2, 'str2');
+            assert.strictEqual(vals.val3, 35);
+            assert.strictEqual(vals.val4, 54);
+
+        });
+        it('Fichier inexistant, pas de template', async () => {
+
+            const fileUrl = `${__dirname}/testX.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({
+                jsonFileUrl: fileUrl,
+                defaultValues: {val3: 55, val4: 54}
+            });
+
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, undefined);
+            assert.strictEqual(vals.val2, undefined);
+            assert.strictEqual(vals.val3, 55);
+            assert.strictEqual(vals.val4, 54);
+
+        });
+        it('Fichier inexistant, template', async () => {
+
+            const fileUrl = `${__dirname}/testX.json`;
+            const vals = await JsonLoader.loadJsonFromFile<any>({
+                jsonFileUrl: fileUrl,
+                createJsonFromTemplate: {val2: 8, val3: 'ploup'},
+                defaultValues: {val3: 55, val4: 54}
+            });
+
+            assert.isOk(vals);
+            assert.strictEqual(vals.val1, undefined);
+            assert.strictEqual(vals.val2, 8);
+            assert.strictEqual(vals.val3, 'ploup');
+            assert.strictEqual(vals.val4, 54);
+
+
+            await promises.unlink(fileUrl);
         });
 
 
     });
-
-    describe('Body', function () {
-
-        it('Test body string out', async () => {
-
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.get(async ctx => {
-                return 'testOk';
-            }).listen(7845);
-
-            // On attend la fin de l'appel
-            const ret: string = await HttpClient.get('http://localhost:7845');
-
-            // Test si on est passé dans le callback
-            assert.isOk(ret);
-            assert.isOk(ret === 'testOk');
-
-            // Fermeture du serveur
-            await server.close();
-        });
-        it('Test body obj out', async () => {
-
-            // Creation server
-            const server: HttpServer = new HttpServer();
-            server.get(async ctx => {
-                return {testOk : true};
-            }).listen(7845);
-
-            // On attend la fin de l'appel
-            const ret: any = await HttpClient.get('http://localhost:7845');
-
-            // Test si on est passé dans le callback
-            assert.isOk(ret);
-            assert.isOk(ret.testOk);
-
-            // Fermeture du serveur
-            await server.close();
-        });
-    });
-
 
 
 });
