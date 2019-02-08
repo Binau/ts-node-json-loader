@@ -1,6 +1,6 @@
 import * as FS from 'fs';
 import {JsonLoaderOpt} from './json.loader.opt';
-import {FileUtils} from 'ts-all-utils';
+import {FileNodeUtils} from 'ts-all-utils';
 
 
 export class JsonLoader {
@@ -19,10 +19,10 @@ export class JsonLoader {
             // Creation depuis le template
             if (opts.createJsonFromTemplate) {
                 conf = opts.createJsonFromTemplate;
-                await FileUtils.writeJson(opts.jsonFileUrl, conf);
+                await FileNodeUtils.writeJson(opts.jsonFileUrl, conf);
             }
         } else {
-            conf = await FileUtils.loadJson(opts.jsonFileUrl, 'utf8');
+            conf = await FileNodeUtils.loadJson(opts.jsonFileUrl, 'utf8');
         }
 
         // Application des valeurs par defaut

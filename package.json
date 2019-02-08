@@ -10,15 +10,15 @@
     "url": "https://github.com/Binau/ts-node-json-loader/issues"
   },
   "dependencies": {
-    "ts-all-utils": "^1.0.15"
+    "ts-all-utils": "^1.0.20"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.18",
+    "@types/node": "^10.12.23",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.2.4"
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",

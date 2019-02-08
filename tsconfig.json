@@ -17,7 +17,6 @@
   },
   "exclude": [
     "lib",
-    "node_modules",
-    "src/x-old"
+    "node_modules"
   ]
 }
